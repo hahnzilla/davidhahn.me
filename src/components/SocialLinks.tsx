@@ -1,7 +1,7 @@
 import { Github, Linkedin, Mail } from 'lucide-react'
 
 const links = [
-  { href: 'https://github.com/dhahn', icon: Github, label: 'GitHub' },
+  { href: 'https://github.com/hahnzilla', icon: Github, label: 'GitHub' },
   { href: 'https://www.linkedin.com/in/david-michael-hahn', icon: Linkedin, label: 'LinkedIn' },
   { href: 'mailto:davidmichaelhahn@gmail.com', icon: Mail, label: 'Email' },
 ]
