@@ -16,7 +16,7 @@ function SocialLinks() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={label}
-          className="text-gray-400 transition-colors duration-200 hover:text-gray-700"
+          className="text-indigo-300/60 transition-colors duration-200 hover:text-white"
         >
           <Icon size={28} strokeWidth={1.5} />
         </a>
