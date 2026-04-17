@@ -3,7 +3,16 @@ import SocialLinks from './components/SocialLinks'
 
 const skills = [
   'Ruby', 'Rails', 'GraphQL', 'REST APIs', 'PostgreSQL',
-  'Redis', 'Sidekiq', 'Docker', 'TypeScript', 'Node.js',
+  'Redis', 'PHP', 'Laravel', 'Claude', 'MySQL',
+]
+
+const projects = [
+  {
+    name: 'Felt',
+    url: 'https://felt.hahnzilla.com',
+    description: 'Real-time poker chip tracker for home games. Replace the chip set with your phone — everyone joins a table, bets, raises, and folds in real time. Built with Rails 8, React, and Action Cable.',
+    tech: ['Rails', 'React', 'PostgreSQL', 'Action Cable'],
+  },
 ]
 
 function App() {
@@ -34,6 +43,42 @@ function App() {
               {skill}
             </span>
           ))}
+        </div>
+
+        <div className="mt-12 text-left">
+          <h2 className="text-sm font-medium uppercase tracking-widest text-indigo-400 mb-4 text-center">
+            Projects
+          </h2>
+          <div className="flex flex-col gap-4">
+            {projects.map((project) => (
+              <a
+                key={project.name}
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-xl bg-white/5 ring-1 ring-white/10 px-5 py-4 hover:bg-white/10 hover:ring-indigo-400/40 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-medium group-hover:text-indigo-300 transition-colors">
+                    {project.name}
+                  </span>
+                  <svg className="w-4 h-4 text-indigo-400 opacity-60 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+                <p className="mt-1 text-sm text-slate-400 leading-relaxed">
+                  {project.description}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {project.tech.map((t) => (
+                    <span key={t} className="text-xs text-indigo-300/70 bg-indigo-500/10 rounded-full px-2 py-0.5 ring-1 ring-indigo-400/20">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
 
         <SocialLinks />
