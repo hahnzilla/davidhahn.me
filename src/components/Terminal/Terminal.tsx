@@ -5,7 +5,7 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import { COMMANDS, resolveCommand, NotFound } from './commands';
+import { COMMANDS, resolveCommand, NotFound, getCompletions } from './commands';
 import { useBootSequence } from './hooks/useBootSequence';
 import { useViewport } from './hooks/useViewport';
 import { PROFILE } from './data/profile';
@@ -85,7 +85,7 @@ function InputLine({
       setVal(next === -1 ? '' : history[history.length - 1 - next] ?? '');
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      const cands = COMMANDS.map((c) => c.cmd).filter((c) => c.startsWith(val));
+      const cands = getCompletions(val, cwd);
       if (cands.length === 1) setVal(cands[0]);
     }
   };
@@ -140,8 +140,9 @@ function Picker({
 
   const items = COMMANDS.filter(
     (c) =>
-      c.cmd.toLowerCase().includes(q.toLowerCase()) ||
-      c.desc.toLowerCase().includes(q.toLowerCase()),
+      !c.hidden &&
+      (c.cmd.toLowerCase().includes(q.toLowerCase()) ||
+        c.desc.toLowerCase().includes(q.toLowerCase())),
   );
 
   return (
@@ -232,14 +233,42 @@ const BOOT_SCRIPT = ['neofetch', 'cat about.txt', 'tree skills/', 'ls projects/'
 
 const SUGGESTIONS = ['help', 'ls projects/', 'cat about.txt', 'tree skills/', 'curl -s api/me'];
 
+// ── Destroyed screen ──
+function Destroyed() {
+  return (
+    <div className={s.destroyedScreen}>
+      <pre className={s.destroyedText}>{`╔══════════════════════════════════════╗
+║  ░▒▓ KERNEL PANIC ▓▒░               ║
+╚══════════════════════════════════════╝
+
+rm: removed everything
+rm: removed you
+Segmentation fault (core dumped)
+
+[    0.000000] Oops: general protection fault
+[    0.000000] RIP: hahnzilla+0x0000
+
+
+        you did this.
+
+        refresh to restore from backup`}</pre>
+    </div>
+  );
+}
+
 // ── Terminal ──
 export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
-  const cwd = '~';
+  const [cwd, setCwd] = useState('~');
+  const [destroyed, setDestroyed] = useState(false);
   const { mobile } = useViewport();
   const [extra, setExtra] = useState<Entry[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const destroy = useCallback(() => {
+    setDestroyed(true);
+  }, []);
 
   const { transcript: bootEntries, typing, bootLines, done, clearAll } = useBootSequence(
     BOOT_SCRIPT,
@@ -281,22 +310,36 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
       if (trimmed === 'clear') {
         setExtra([]);
         clearAll();
+        setCwd('~');
         return;
       }
       const resolved = resolveCommand(trimmed);
       const ctx = {
         setOpenProject: (slug: string) => run(`cat projects/${slug}/README.md`),
-        clear: () => { setExtra([]); clearAll(); },
+        clear: () => { setExtra([]); clearAll(); setCwd('~'); },
+        cwd,
+        setCwd,
+        destroy,
       };
       const output = resolved
         ? resolved.cmd.run(resolved.match, ctx)
         : <NotFound cmd={trimmed} />;
       setExtra((e) => [...e, { input: trimmed, cwd, output, key: Date.now() }]);
     },
-    [cwd],
+    [cwd, destroy],
   );
 
   const suggestions = useMemo(() => SUGGESTIONS, []);
+
+  if (destroyed) {
+    return (
+      <div className={s.root}>
+        <div className={s.scanlines} />
+        <TopBar onPicker={() => setPickerOpen(true)} mobile={mobile} />
+        <Destroyed />
+      </div>
+    );
+  }
 
   return (
     <div className={s.root}>
@@ -316,14 +359,6 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
           }
         }}
       >
-        {/* initial blinking cursor before boot starts */}
-        {!done && bootEntries.length === 0 && !typing && bootLines.length === 0 && (
-          <div className={s.blockCmd}>
-            <Prompt cwd={cwd} />
-            <Cursor />
-          </div>
-        )}
-
         {/* boot log */}
         {bootLines.length > 0 && (
           <div className={s.bootLog}>

@@ -11,6 +11,40 @@ function C({ cls, children }: { cls: string; children: React.ReactNode }) {
   return <span className={cls}>{children}</span>;
 }
 
+// ── Virtual filesystem ──
+function buildVirtualFS(): Record<string, string[]> {
+  const fs: Record<string, string[]> = {
+    '~': ['about.txt', 'projects/', 'skills/'],
+    '~/projects': PROJECTS.map((p) => `${p.slug}/`),
+    '~/skills': Object.keys(SKILLS_TREE).map((k) => `${k}/`),
+  };
+  for (const p of PROJECTS) {
+    fs[`~/projects/${p.slug}`] = ['README.md'];
+  }
+  for (const [cat, skills] of Object.entries(SKILLS_TREE)) {
+    fs[`~/skills/${cat}`] = skills.map((sk) => sk.name);
+  }
+  return fs;
+}
+
+export const VIRTUAL_FS = buildVirtualFS();
+
+// Resolve a path relative to cwd. Returns the canonical ~/… form.
+export function resolvePath(cwd: string, input: string): string {
+  const trimmed = input.replace(/\/+$/, '');
+  if (trimmed === '' || trimmed === '~') return '~';
+  if (trimmed.startsWith('~/')) return trimmed;
+
+  const parts = cwd === '~' ? ['~'] : cwd.split('/');
+  for (const seg of trimmed.split('/')) {
+    if (seg === '' || seg === '.') continue;
+    if (seg === '~') { parts.splice(0, parts.length, '~'); continue; }
+    if (seg === '..') { if (parts.length > 1) parts.pop(); continue; }
+    parts.push(seg);
+  }
+  return parts.join('/');
+}
+
 // ── Neofetch ──
 export function Neofetch() {
   const labels: [string, React.ReactNode][] = [
@@ -87,6 +121,19 @@ export function LsProjects({ onOpen }: { onOpen?: (slug: string) => void }) {
   );
 }
 
+// ── LsDir — generic directory listing ──
+function LsDir({ entries }: { entries: string[] }) {
+  return (
+    <div className={s.lsDirGrid}>
+      {entries.map((e) => (
+        <span key={e} className={e.endsWith('/') ? s.green : undefined}>
+          {e}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 // ── CatReadme ──
 export function CatReadme({ slug }: { slug: string }) {
   const p = PROJECTS.find((x) => x.slug === slug) ?? PROJECTS[0];
@@ -130,6 +177,53 @@ export function CatReadme({ slug }: { slug: string }) {
         </a>
       </div>
     </div>
+  );
+}
+
+// ── CatSkill ──
+function CatSkill({ category, name }: { category: string; name: string }) {
+  const skill = SKILLS_TREE[category]?.find((sk) => sk.name === name);
+  if (!skill) {
+    return <NotFound cmd={`cat skills/${category}/${name}`} />;
+  }
+  return (
+    <div className={s.skillWrap}>
+      <div className={s.skillPath}>skills/{category}/{name}</div>
+      <div className={s.skillSep}>{'─'.repeat(22)}</div>
+      <div className={s.skillMeta}>
+        <C cls={s.white}>{skill.name}</C>
+        <C cls={s.dim}>{'  ·  '}{skill.years}y</C>
+      </div>
+      <p className={s.skillBlurb}>{skill.blurb}</p>
+      <div className={s.skillLink}>
+        <C cls={s.dim}>→ </C>
+        <a href={skill.url} target="_blank" rel="noreferrer" className={s.readmeLink}>
+          {skill.url.replace('https://', '')}
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ── RmRf — easter egg deletion sequence ──
+function RmRf({ onDestroy }: { onDestroy: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDestroy, 2200);
+    return () => clearTimeout(t);
+  }, [onDestroy]);
+
+  return (
+    <pre className={s.rmWrap}>{`removed 'about.txt'
+removed 'projects/felt/README.md'
+removed directory 'projects/felt/'
+removed directory 'projects/'
+removed directory 'skills/languages/'
+removed directory 'skills/frameworks/'
+removed directory 'skills/data/'
+removed directory 'skills/tools/'
+removed directory 'skills/'
+
+Segmentation fault (core dumped)`}</pre>
   );
 }
 
@@ -240,11 +334,12 @@ export function GitLog({ project }: { project: string }) {
 
 // ── Help ──
 export function Help({ commands }: { commands: Command[] }) {
+  const visible = commands.filter((c) => !c.hidden);
   return (
     <div className={s.helpWrap}>
       <div className={s.helpHeader}>available commands:</div>
       <div className={s.helpGrid}>
-        {commands.map((c) => (
+        {visible.map((c) => (
           <Fragment key={c.cmd}>
             <C cls={s.green}>{c.cmd}</C>
             <C cls={s.dim}>{c.desc}</C>
@@ -252,7 +347,7 @@ export function Help({ commands }: { commands: Command[] }) {
         ))}
       </div>
       <div className={s.helpFooter}>
-        try <C cls={s.cyan}>cat projects/felt/README.md</C> · use{' '}
+        try <C cls={s.cyan}>cat skills/languages/ruby</C> · use{' '}
         <C cls={s.cyan}>↑/↓</C> for history · <C cls={s.cyan}>clear</C> to reset
       </div>
     </div>
@@ -353,16 +448,95 @@ export const COMMANDS: Command[] = [
     run: () => <CatAbout />,
   },
   {
-    cmd: 'ls projects/',
-    match: /^ls\s+projects\/?$/,
-    desc: 'list projects',
-    run: (_, ctx) => <LsProjects onOpen={ctx.setOpenProject} />,
+    cmd: 'ls',
+    match: /^ls(\s+(.+))?$/,
+    desc: 'list directory contents',
+    run: (m, ctx) => {
+      const rawPath = m?.[2]?.trim();
+      const target = rawPath ? resolvePath(ctx.cwd, rawPath) : ctx.cwd;
+      if (target === '~/projects') {
+        return <LsProjects onOpen={ctx.setOpenProject} />;
+      }
+      const entries = VIRTUAL_FS[target];
+      if (!entries) {
+        return (
+          <span className={s.notFoundWrap}>
+            ls: cannot access '{rawPath ?? '.'}': No such file or directory
+          </span>
+        );
+      }
+      return <LsDir entries={entries} />;
+    },
+  },
+  {
+    cmd: 'cd',
+    match: /^cd(\s+(.+))?$/,
+    desc: 'change directory',
+    run: (m, ctx) => {
+      const rawPath = m?.[2]?.trim();
+      if (!rawPath || rawPath === '~') {
+        ctx.setCwd('~');
+        return null;
+      }
+      const resolved = resolvePath(ctx.cwd, rawPath);
+      if (VIRTUAL_FS[resolved] !== undefined) {
+        ctx.setCwd(resolved);
+        return null;
+      }
+      return (
+        <span className={s.notFoundWrap}>
+          cd: no such file or directory: {rawPath}
+        </span>
+      );
+    },
+  },
+  {
+    cmd: 'pwd',
+    desc: 'print working directory',
+    run: (_, ctx) => (
+      <span>{ctx.cwd.replace('~', `/home/${PROFILE.user}`)}</span>
+    ),
   },
   {
     cmd: 'cat projects/felt/README.md',
     match: /^cat\s+projects\/(\w+)\/README\.md$/,
     desc: 'read project README',
     run: (m) => <CatReadme slug={m ? m[1] : 'felt'} />,
+  },
+  {
+    cmd: 'cat skills/languages/ruby',
+    match: /^cat\s+skills\/(\w[\w-]*)\/(\w[\w-]*)$/,
+    desc: 'read a skill file',
+    run: (m) => <CatSkill category={m![1]} name={m![2]} />,
+  },
+  {
+    cmd: 'cat <file>',
+    match: /^cat\s+(.+)$/,
+    desc: 'read a file',
+    hidden: true,
+    run: (m, ctx) => {
+      const rawPath = m![1].trim();
+      const resolved = resolvePath(ctx.cwd, rawPath);
+
+      if (resolved === '~/about.txt') return <CatAbout />;
+
+      const readmeMatch = resolved.match(/^~\/projects\/(\w+)\/README\.md$/);
+      if (readmeMatch) return <CatReadme slug={readmeMatch[1]} />;
+
+      const skillMatch = resolved.match(/^~\/skills\/(\w[\w-]*)\/(\w[\w-]*)$/);
+      if (skillMatch) return <CatSkill category={skillMatch[1]} name={skillMatch[2]} />;
+
+      if (VIRTUAL_FS[resolved] !== undefined) {
+        return (
+          <span className={s.notFoundWrap}>cat: {rawPath}: Is a directory</span>
+        );
+      }
+      return (
+        <span className={s.notFoundWrap}>
+          cat: {rawPath}: No such file or directory
+        </span>
+      );
+    },
   },
   {
     cmd: 'tree skills/',
@@ -384,9 +558,55 @@ export const COMMANDS: Command[] = [
   {
     cmd: 'clear',
     desc: 'clear the screen',
-    run: (_, ctx) => { ctx.clear(); return null; }, // eslint-disable-line @typescript-eslint/no-unused-vars
+    run: (_, ctx) => { ctx.clear(); return null; },
+  },
+  {
+    cmd: 'rm -rf .',
+    match: /^rm\s+(-rf|-fr)(\s+\S+)?\s*$/,
+    desc: 'delete everything',
+    hidden: true,
+    run: (_, ctx) => <RmRf onDestroy={ctx.destroy} />,
   },
 ];
+
+// ── Tab completion ──
+const PATH_VERBS = new Set(['cd', 'ls', 'cat', 'tree']);
+
+function completePathArg(partial: string, cwd: string, dirsOnly: boolean): string[] {
+  const lastSlash = partial.lastIndexOf('/');
+  const dirPart = lastSlash === -1 ? '' : partial.slice(0, lastSlash);
+  const prefix = lastSlash === -1 ? partial : partial.slice(lastSlash + 1);
+
+  const targetDir = dirPart ? resolvePath(cwd, dirPart) : cwd;
+  const entries = VIRTUAL_FS[targetDir];
+  if (!entries) return [];
+
+  return entries
+    .filter((e) => e.startsWith(prefix) && (!dirsOnly || e.endsWith('/')))
+    .map((e) => (dirPart ? `${dirPart}/${e}` : e));
+}
+
+export function getCompletions(val: string, cwd: string): string[] {
+  const trimmed = val.trimStart();
+  const spaceIdx = trimmed.indexOf(' ');
+
+  if (spaceIdx === -1) {
+    // Completing the verb — deduplicate (cat appears multiple times in COMMANDS)
+    const verbs = [...new Set(COMMANDS.filter((c) => !c.hidden).map((c) => c.cmd.split(' ')[0]))];
+    return verbs.filter((v) => v.startsWith(trimmed));
+  }
+
+  const verb = trimmed.slice(0, spaceIdx);
+  const rest = trimmed.slice(spaceIdx + 1);
+
+  if (PATH_VERBS.has(verb)) {
+    const paths = completePathArg(rest, cwd, verb === 'cd');
+    return paths.map((p) => `${verb} ${p}`);
+  }
+
+  // Fall back to full command-string matching
+  return COMMANDS.filter((c) => !c.hidden && c.cmd.startsWith(trimmed)).map((c) => c.cmd);
+}
 
 export function resolveCommand(input: string) {
   const trimmed = input.trim();

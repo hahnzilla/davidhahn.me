@@ -286,6 +286,54 @@
   color: transparent;
 }
 
+/* ── LsDir ── */
+.lsDirGrid {
+  display: flex;
+  gap: 6px 28px;
+  flex-wrap: wrap;
+  line-height: 1.9;
+}
+
+/* ── CatSkill ── */
+.skillWrap {
+  max-width: 600px;
+  color: var(--c-fg);
+  line-height: 1.75;
+}
+
+.skillPath {
+  color: var(--c-dim);
+  font-size: 0.85em;
+  margin-bottom: 2px;
+}
+
+.skillSep {
+  color: var(--c-dim);
+  margin-bottom: 8px;
+}
+
+.skillMeta {
+  font-size: 1.05em;
+  margin-bottom: 8px;
+}
+
+.skillBlurb {
+  margin: 0 0 12px;
+}
+
+.skillLink {
+  margin-top: 4px;
+}
+
+/* ── RmRf ── */
+.rmWrap {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.7;
+  color: var(--c-red);
+}
+
 /* ── shared color helpers ── */
 .fg { color: var(--c-fg); }
 .dim { color: var(--c-dim); }

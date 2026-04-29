@@ -282,6 +282,23 @@
   cursor: pointer;
 }
 
+/* ── Destroyed screen ── */
+.destroyedScreen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--term-pad);
+}
+
+.destroyedText {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--c-red);
+  line-height: 1.8;
+}
+
 /* ── Mobile overrides ── */
 @media (max-width: 720px) {
   .topbar {
