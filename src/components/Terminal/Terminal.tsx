@@ -13,7 +13,7 @@ import type { Entry, BootLine } from './types';
 import s from './Terminal.module.css';
 
 // ── Prompt ──
-function Prompt({ cwd, mobile }: { cwd: string; mobile: boolean }) {
+function Prompt({ cwd }: { cwd: string }) {
   return (
     <span className={s.promptWrap}>
       <span className={s.promptUser}>{PROFILE.user}</span>
@@ -32,11 +32,11 @@ function Cursor() {
 }
 
 // ── Transcript block ──
-function Block({ entry, mobile }: { entry: Entry; mobile: boolean }) {
+function Block({ entry }: { entry: Entry }) {
   return (
     <div className={`${s.block}${entry.first ? ` ${s.blockFirst}` : ''}`}>
       <div className={s.blockCmd}>
-        <Prompt cwd={entry.cwd} mobile={mobile} />
+        <Prompt cwd={entry.cwd} />
         <span>{entry.input}</span>
       </div>
       {entry.output != null && (
@@ -96,7 +96,7 @@ function InputLine({
       onClick={() => inputRef.current?.focus()}
     >
       <div className={s.inputRow}>
-        <Prompt cwd={cwd} mobile={mobile} />
+        <Prompt cwd={cwd} />
         {mobile && <br />}
         <div className={s.inputInner}>
           <input
@@ -319,7 +319,7 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
         {/* initial blinking cursor before boot starts */}
         {!done && bootEntries.length === 0 && !typing && bootLines.length === 0 && (
           <div className={s.blockCmd}>
-            <Prompt cwd={cwd} mobile={mobile} />
+            <Prompt cwd={cwd} />
             <Cursor />
           </div>
         )}
@@ -343,14 +343,14 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
 
         {/* auto-typed transcript */}
         {bootEntries.map((e, i) => (
-          <Block key={e.key} entry={{ ...e, first: i === 0 }} mobile={mobile} />
+          <Block key={e.key} entry={{ ...e, first: i === 0 }} />
         ))}
 
         {/* currently typing */}
         {typing && (
           <div className={`${s.block}${bootEntries.length === 0 ? ` ${s.blockFirst}` : ''}`}>
             <div className={s.blockCmd}>
-              <Prompt cwd={typing.cwd} mobile={mobile} />
+              <Prompt cwd={typing.cwd} />
               <span>{typing.input}</span>
               <Cursor />
             </div>
@@ -359,7 +359,7 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
 
         {/* user-run entries */}
         {extra.map((e) => (
-          <Block key={e.key} entry={e} mobile={mobile} />
+          <Block key={e.key} entry={e} />
         ))}
 
         {done && (
