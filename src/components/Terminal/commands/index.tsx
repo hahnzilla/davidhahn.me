@@ -50,9 +50,9 @@ export function Neofetch() {
   const labels: [string, React.ReactNode][] = [
     ['', <><C cls={s.green}>{PROFILE.user}</C><C cls={s.fg}>@</C><C cls={s.yellow}>{PROFILE.host}</C></>],
     ['', <C cls={s.dim}>─────────────────</C>],
-    ['OS', 'macOS Sequoia 15'],
+    ['OS', 'macOS Tahoe 26'],
     ['Shell', 'zsh 5.9'],
-    ['Editor', 'VS Code'],
+    ['Editor', 'VS Code 1.120'],
     ['Role', <><span>{PROFILE.role} @ </span><C cls={s.green}>{PROFILE.company}</C></>],
     ['Location', PROFILE.location],
     ['Uptime', `${PROFILE.uptimeYears} years`],
@@ -85,7 +85,7 @@ export function Neofetch() {
 export function CatAbout() {
   return (
     <div className={s.aboutWrap}>
-      <div className={s.aboutComment}># about.txt | last edited 2026-04-01</div>
+      <div className={s.aboutComment}># about.txt | last edited 2026-04-29</div>
       <p className={s.aboutBody}>
         I'm <C cls={s.white}>{PROFILE.fullName}</C>, a backend engineer at{' '}
         <C cls={s.green}>{PROFILE.company}</C>. I build the systems you never see.

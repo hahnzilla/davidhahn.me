@@ -8,5 +8,5 @@ export const PROFILE = {
   location: 'Springfield, MO',
   email: 'hello@hahnzilla.com',
   github: 'github.com/hahnzilla',
-  uptimeYears: 14,
+  uptimeYears: 16,
 };
