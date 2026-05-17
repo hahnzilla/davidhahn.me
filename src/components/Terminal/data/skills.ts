@@ -11,7 +11,7 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'ruby',
       years: 16,
       url: 'https://www.ruby-lang.org',
-      blurb: 'Home base. Sixteen years in and it\'s still how I think — every other language is a translation.',
+      blurb: 'Home base. Sixteen years in and it\'s still how I think. Every other language is a translation.',
     },
     {
       name: 'php',
@@ -23,13 +23,13 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'javascript',
       years: 16,
       url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
-      blurb: 'Always present. I don\'t think about it much — it\'s just the air the web runs on.',
+      blurb: 'Always present. I don\'t think about it much. It\'s just the air the web runs on.',
     },
     {
       name: 'typescript',
       years: 5,
       url: 'https://www.typescriptlang.org',
-      blurb: 'Didn\'t love it at first. Now I wouldn\'t go back — it\'s the thing that keeps me from shipping my own mistakes.',
+      blurb: 'Didn\'t love it at first. Now I wouldn\'t go back. It\'s the thing that keeps me from shipping my own mistakes.',
     },
   ],
   frameworks: [
@@ -37,7 +37,7 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'rails',
       years: 16,
       url: 'https://rubyonrails.org',
-      blurb: 'Gets out of my way. After sixteen years it just works — I think about the problem, not the framework.',
+      blurb: 'Gets out of my way. After sixteen years it just works. I think about the problem, not the framework.',
     },
     {
       name: 'laravel',
@@ -57,7 +57,7 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'postgresql',
       years: 16,
       url: 'https://www.postgresql.org',
-      blurb: 'My default. No drama about it — just always the right call.',
+      blurb: 'My default. No drama about it. Just always the right call.',
     },
     {
       name: 'mysql',
@@ -69,7 +69,7 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'redis',
       years: 12,
       url: 'https://redis.io',
-      blurb: 'Duct tape. I\'ve used it for caching, queues, rate limiting, sessions — things it was and wasn\'t designed for. Handles all of it.',
+      blurb: 'Duct tape. I\'ve used it for caching, queues, rate limiting, sessions. Things it was and wasn\'t designed for. Handles all of it.',
     },
     {
       name: 'graphql',

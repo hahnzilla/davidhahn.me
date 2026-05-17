@@ -19,7 +19,7 @@ export const PROJECTS: Project[] = [
     status: 'live',
     blurb: 'real-time poker chip tracker for home games',
     description:
-      'Replace the chip set with your phone — everyone joins a table, bets, raises, and folds in real time. Built to stress-test Action Cable at low latency under unreliable home wifi.',
+      'Replace the chip set with your phone. Everyone joins a table, bets, raises, and folds in real time. Built to stress-test Action Cable at low latency under unreliable home wifi.',
     stack: ['rails-8', 'react', 'postgresql', 'action-cable'],
     metrics: [
       ['p50 broadcast latency', '34ms'],

@@ -85,11 +85,11 @@ export function Neofetch() {
 export function CatAbout() {
   return (
     <div className={s.aboutWrap}>
-      <div className={s.aboutComment}># about.txt — last edited 2026-04-01</div>
+      <div className={s.aboutComment}># about.txt | last edited 2026-04-01</div>
       <p className={s.aboutBody}>
         I'm <C cls={s.white}>{PROFILE.fullName}</C>, a backend engineer at{' '}
         <C cls={s.green}>{PROFILE.company}</C>. I build the systems you never see.
-        Happiest deep in server-side code — making things faster, more reliable,
+        Happiest deep in server-side code, making things faster, more reliable,
         and less likely to page me at 2am.
       </p>
       <p className={s.aboutTagline}>"{PROFILE.tagline}"</p>
