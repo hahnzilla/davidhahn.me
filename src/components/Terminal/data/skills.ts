@@ -9,19 +9,19 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
   languages: [
     {
       name: 'ruby',
-      years: 11,
+      years: 16,
       url: 'https://www.ruby-lang.org',
-      blurb: 'Home base. Eleven years in and it\'s still how I think — every other language is a translation.',
+      blurb: 'Home base. Sixteen years in and it\'s still how I think — every other language is a translation.',
     },
     {
       name: 'php',
-      years: 7,
+      years: 12,
       url: 'https://www.php.net',
       blurb: 'My past, mostly. Laravel at Moment, Craft Commerce at 40D. More capable than its reputation, and I have the production scars to prove it.',
     },
     {
       name: 'javascript',
-      years: 10,
+      years: 16,
       url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
       blurb: 'Always present. I don\'t think about it much — it\'s just the air the web runs on.',
     },
@@ -35,13 +35,13 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
   frameworks: [
     {
       name: 'rails',
-      years: 11,
+      years: 16,
       url: 'https://rubyonrails.org',
-      blurb: 'Gets out of my way. After eleven years it just works — I think about the problem, not the framework.',
+      blurb: 'Gets out of my way. After sixteen years it just works — I think about the problem, not the framework.',
     },
     {
       name: 'laravel',
-      years: 5,
+      years: 10,
       url: 'https://laravel.com',
       blurb: 'Built real production APIs with it at Moment and 40D. The Rails of PHP, in all the right ways.',
     },
@@ -55,25 +55,25 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
   data: [
     {
       name: 'postgresql',
-      years: 10,
+      years: 16,
       url: 'https://www.postgresql.org',
       blurb: 'My default. No drama about it — just always the right call.',
     },
     {
       name: 'mysql',
-      years: 9,
+      years: 16,
       url: 'https://www.mysql.com',
       blurb: 'Muscle memory from years in PHP-land. I know Postgres is the right call. I still reach for MySQL anyway.',
     },
     {
       name: 'redis',
-      years: 8,
+      years: 12,
       url: 'https://redis.io',
       blurb: 'Duct tape. I\'ve used it for caching, queues, rate limiting, sessions — things it was and wasn\'t designed for. Handles all of it.',
     },
     {
       name: 'graphql',
-      years: 6,
+      years: 4,
       url: 'https://graphql.org',
       blurb: 'Used it. Have opinions. Mostly the opinion is: REST was probably fine.',
     },
@@ -81,13 +81,13 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
   tools: [
     {
       name: 'git',
-      years: 12,
+      years: 16,
       url: 'https://git-scm.com',
       blurb: 'The tool I use more than any other. I think in commits and branches.',
     },
     {
       name: 'claude',
-      years: 2,
+      years: 1,
       url: 'https://claude.ai',
       blurb: 'AI pair programmer and thinking partner. It wrote some of the code on this very site.',
     },
