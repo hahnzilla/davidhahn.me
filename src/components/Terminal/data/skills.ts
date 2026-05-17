@@ -17,7 +17,7 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'php',
       years: 12,
       url: 'https://www.php.net',
-      blurb: 'My past, mostly. Laravel at Moment, Craft Commerce at 40D. More capable than its reputation, and I have the production scars to prove it.',
+      blurb: 'My past, mostly. Craft CMS and Commerce at Moment, Laravel at 40D. More capable than its reputation, and I have the production scars to prove it.',
     },
     {
       name: 'javascript',
@@ -43,13 +43,13 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       name: 'laravel',
       years: 10,
       url: 'https://laravel.com',
-      blurb: 'Built real production APIs with it at Moment and 40D. The Rails of PHP, in all the right ways.',
+      blurb: 'Built real production APIs with it at 40D. The Rails of PHP, in all the right ways.',
     },
     {
       name: 'react',
       years: 6,
       url: 'https://react.dev',
-      blurb: 'I\'ll use it when the project earns it. I\'m a backend engineer and I\'m fine with that.',
+      blurb: 'I\'ll use it when the project earns it. hahnzilla.com is built with it, for what it\'s worth. I\'m a backend engineer and I\'m fine with that.',
     },
   ],
   data: [
