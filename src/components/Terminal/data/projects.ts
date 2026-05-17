@@ -17,9 +17,9 @@ export const PROJECTS: Project[] = [
     name: 'felt',
     type: 'd',
     status: 'live',
-    blurb: 'real-time poker chip tracker for home games',
+    blurb: 'poker night minus the setup',
     description:
-      'Replace the chip set with your phone. Everyone joins a table, bets, raises, and folds in real time. Built to stress-test Action Cable at low latency under unreliable home wifi.',
+      'Born out of a Friday night in Montreal where eight people wasted 45 minutes trying to start a game with the wrong app. Felt does one thing: track chips in real time. Share a 6-character code, everyone joins from their phone, bets and folds update instantly on every screen. No rules engine, no subscription, no accounts for guests. You bring the cards.',
     stack: ['rails-8', 'react', 'postgresql', 'action-cable'],
     metrics: [
       ['p50 broadcast latency', '34ms'],
