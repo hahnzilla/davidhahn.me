@@ -26,7 +26,7 @@ export const PROJECTS: Project[] = [
       ['concurrent tables', '120+'],
       ['lines of code', '~4.2k'],
     ],
-    repo: 'github.com/hahnzilla/felt',
+    repo: 'felt.hahnzilla.com',
     commits: [
       ['a3f12e0', 'reduce chip render thrash under load'],
       ['881cc4d', 'action cable reconnect with backoff'],
