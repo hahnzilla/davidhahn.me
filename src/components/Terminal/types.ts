@@ -6,6 +6,7 @@ export interface CommandContext {
   cwd: string;
   setCwd: (dir: string) => void;
   destroy: () => void;
+  openEditor: (editor: 'vim' | 'nano', filename: string) => void;
 }
 
 export interface Command {
