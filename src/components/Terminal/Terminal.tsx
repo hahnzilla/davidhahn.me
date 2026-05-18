@@ -5,7 +5,7 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import { COMMANDS, resolveCommand, NotFound, getCompletions } from './commands';
+import { COMMANDS, resolveCommand, NotFound, getCompletions, VimEditor, NanoEditor } from './commands';
 import { useBootSequence } from './hooks/useBootSequence';
 import { useViewport } from './hooks/useViewport';
 import { PROFILE } from './data/profile';
@@ -264,6 +264,9 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
   const [extra, setExtra] = useState<Entry[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState<{ type: 'vim' | 'nano'; filename: string } | null>(null);
+  const editorRef = useRef(editorOpen);
+  editorRef.current = editorOpen;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const destroy = useCallback(() => {
@@ -279,9 +282,21 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
     (props) => <NotFound {...props} />,
   );
 
+  const openEditor = useCallback((type: 'vim' | 'nano', filename: string) => {
+    setEditorOpen({ type, filename });
+  }, []);
+
+  const closeEditor = useCallback(() => {
+    setEditorOpen(null);
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLInputElement>(`.${s.inputField}`)?.focus();
+    });
+  }, []);
+
   // ⌘K / Ctrl+K global shortcut
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
+      if (editorRef.current) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setPickerOpen((v) => !v);
@@ -320,6 +335,7 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
         cwd,
         setCwd,
         destroy,
+        openEditor,
       };
       const output = resolved
         ? resolved.cmd.run(resolved.match, ctx)
@@ -411,6 +427,13 @@ export function Terminal({ autoBoot = true }: { autoBoot?: boolean }) {
             </button>
           ))}
         </div>
+      )}
+
+      {editorOpen?.type === 'vim' && (
+        <VimEditor filename={editorOpen.filename} onClose={closeEditor} />
+      )}
+      {editorOpen?.type === 'nano' && (
+        <NanoEditor filename={editorOpen.filename} onClose={closeEditor} />
       )}
 
       <Picker

@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import type { Command } from '../types';
 import { PROFILE } from '../data/profile';
 import { PROJECTS } from '../data/projects';
@@ -201,6 +201,214 @@ function CatSkill({ category, name }: { category: string; name: string }) {
           {skill.url.replace('https://', '')}
         </a>
       </div>
+    </div>
+  );
+}
+
+// ── VimEditor ──
+export function VimEditor({ filename, onClose }: { filename: string; onClose: () => void }) {
+  type Mode = 'normal' | 'insert' | 'command';
+  const [mode, setMode] = useState<Mode>('normal');
+  const [lines, setLines] = useState(['']);
+  const [row, setRow] = useState(0);
+  const [col, setCol] = useState(0);
+  const [cmdBuf, setCmdBuf] = useState('');
+  const [msg, setMsg] = useState(`"${filename}" [New File]`);
+  const [modified, setModified] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { ref.current?.focus(); }, []);
+
+  function handleKey(e: React.KeyboardEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (mode === 'normal') {
+      if (e.key === 'i') { setMode('insert'); setMsg(''); }
+      else if (e.key === ':') { setMode('command'); setCmdBuf(''); setMsg(''); }
+      else if (e.key === 'ArrowLeft')  setCol(c => Math.max(0, c - 1));
+      else if (e.key === 'ArrowRight') setCol(c => Math.min(lines[row].length, c + 1));
+      else if (e.key === 'ArrowUp')    setRow(r => Math.max(0, r - 1));
+      else if (e.key === 'ArrowDown')  setRow(r => Math.min(lines.length - 1, r + 1));
+    } else if (mode === 'insert') {
+      if (e.key === 'Escape') { setMode('normal'); setMsg(''); }
+      else if (e.key === 'Enter') {
+        const before = lines[row].slice(0, col);
+        const after  = lines[row].slice(col);
+        setLines(ls => { const n = [...ls]; n[row] = before; n.splice(row + 1, 0, after); return n; });
+        setRow(r => r + 1);
+        setCol(0);
+        setModified(true);
+      } else if (e.key === 'Backspace') {
+        if (col > 0) {
+          setLines(ls => { const n = [...ls]; n[row] = n[row].slice(0, col - 1) + n[row].slice(col); return n; });
+          setCol(c => c - 1);
+          setModified(true);
+        } else if (row > 0) {
+          const prevLen = lines[row - 1].length;
+          setLines(ls => { const n = [...ls]; n[row - 1] += n[row]; n.splice(row, 1); return n; });
+          setRow(r => r - 1);
+          setCol(prevLen);
+          setModified(true);
+        }
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        setLines(ls => { const n = [...ls]; n[row] = n[row].slice(0, col) + e.key + n[row].slice(col); return n; });
+        setCol(c => c + 1);
+        setModified(true);
+      }
+    } else if (mode === 'command') {
+      if (e.key === 'Escape') { setMode('normal'); setCmdBuf(''); setMsg(''); }
+      else if (e.key === 'Backspace') { setCmdBuf(b => b.slice(0, -1)); }
+      else if (e.key === 'Enter') {
+        const cmd = cmdBuf.trim();
+        if (cmd === 'q!' || cmd === 'quit!') {
+          onClose();
+        } else if (cmd === 'q' || cmd === 'quit') {
+          if (!modified) onClose();
+          else { setMode('normal'); setCmdBuf(''); setMsg('E37: No write since last change (add ! to override)'); }
+        } else if (cmd === 'wq' || cmd === 'wq!' || cmd === 'x') {
+          onClose();
+        } else if (cmd === 'w' || cmd === 'write') {
+          setModified(false); setMode('normal'); setCmdBuf('');
+          setMsg(`"${filename}" written`);
+        } else {
+          setMode('normal'); setCmdBuf('');
+          setMsg(`E492: Not an editor command: ${cmd}`);
+        }
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        setCmdBuf(b => b + e.key);
+      }
+    }
+  }
+
+  const statusText = mode === 'insert' ? '-- INSERT --'
+    : mode === 'command' ? `:${cmdBuf}`
+    : msg;
+
+  return (
+    <div className={s.editorOverlay} ref={ref} tabIndex={-1} onKeyDown={handleKey}>
+      <div className={s.vimBody}>
+        {lines.map((line, i) => (
+          <div key={i} className={s.editorLine}>
+            {i === row
+              ? <><span>{line.slice(0, col)}</span><span className={s.editorCursor}>{line[col] ?? ' '}</span><span>{line.slice(col + 1)}</span></>
+              : (line || ' ')}
+          </div>
+        ))}
+        {Array.from({ length: Math.max(0, 16 - lines.length) }, (_, i) => (
+          <div key={`t${i}`} className={`${s.editorLine} ${s.dim}`}>~</div>
+        ))}
+      </div>
+      <div className={s.vimStatus}>
+        <span className={mode === 'insert' ? s.vimInsert : mode === 'command' ? s.fg : s.dim}>
+          {statusText}
+        </span>
+        <span className={s.dim}>{row + 1},{col + 1}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── NanoEditor ──
+export function NanoEditor({ filename, onClose }: { filename: string; onClose: () => void }) {
+  const [lines, setLines] = useState(['']);
+  const [row, setRow] = useState(0);
+  const [col, setCol] = useState(0);
+  const [modified, setModified] = useState(false);
+  const [exitPrompt, setExitPrompt] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { ref.current?.focus(); }, []);
+
+  function handleKey(e: React.KeyboardEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (exitPrompt) {
+      if (e.key.toLowerCase() === 'y') onClose();
+      else if (e.key.toLowerCase() === 'n') onClose();
+      else if (e.key === 'Escape') { setExitPrompt(false); setStatusMsg(''); }
+      return;
+    }
+
+    if (e.ctrlKey) {
+      if (e.key.toLowerCase() === 'x') {
+        if (modified) setExitPrompt(true);
+        else onClose();
+      } else if (e.key.toLowerCase() === 'o') {
+        setModified(false);
+        setStatusMsg(`File Name to Write: ${filename}`);
+        setTimeout(() => setStatusMsg(''), 2000);
+      }
+      return;
+    }
+
+    setStatusMsg('');
+    if (e.key === 'Enter') {
+      const before = lines[row].slice(0, col);
+      const after  = lines[row].slice(col);
+      setLines(ls => { const n = [...ls]; n[row] = before; n.splice(row + 1, 0, after); return n; });
+      setRow(r => r + 1);
+      setCol(0);
+      setModified(true);
+    } else if (e.key === 'Backspace') {
+      if (col > 0) {
+        setLines(ls => { const n = [...ls]; n[row] = n[row].slice(0, col - 1) + n[row].slice(col); return n; });
+        setCol(c => c - 1);
+        setModified(true);
+      } else if (row > 0) {
+        const prevLen = lines[row - 1].length;
+        setLines(ls => { const n = [...ls]; n[row - 1] += n[row]; n.splice(row, 1); return n; });
+        setRow(r => r - 1);
+        setCol(prevLen);
+        setModified(true);
+      }
+    } else if (e.key.length === 1 && !e.metaKey) {
+      setLines(ls => { const n = [...ls]; n[row] = n[row].slice(0, col) + e.key + n[row].slice(col); return n; });
+      setCol(c => c + 1);
+      setModified(true);
+    }
+  }
+
+  const SHORTCUTS = [
+    ['^G', 'Help'], ['^X', 'Exit'], ['^O', 'Write Out'], ['^W', 'Where Is'],
+    ['^K', 'Cut'],  ['^U', 'Paste'], ['^T', 'Execute'],  ['^C', 'Location'],
+  ];
+
+  return (
+    <div className={s.editorOverlay} ref={ref} tabIndex={-1} onKeyDown={handleKey}>
+      <div className={s.nanoTopBar}>
+        <span className={s.dim}>GNU nano 7.2</span>
+        <span>{filename}{modified ? ' *' : ''}</span>
+        <span />
+      </div>
+      <div className={s.nanoBody}>
+        {lines.map((line, i) => (
+          <div key={i} className={s.editorLine}>
+            {i === row
+              ? <><span>{line.slice(0, col)}</span><span className={s.editorCursor}>{line[col] ?? ' '}</span><span>{line.slice(col + 1)}</span></>
+              : (line || ' ')}
+          </div>
+        ))}
+      </div>
+      {exitPrompt ? (
+        <div className={s.nanoPrompt}>
+          <span>Save modified buffer? </span>
+          <span className={s.dim}> Y Yes   N No   ^C Cancel</span>
+        </div>
+      ) : statusMsg ? (
+        <div className={s.nanoPrompt}>{statusMsg}</div>
+      ) : (
+        <div className={s.nanoShortcuts}>
+          {SHORTCUTS.map(([k, l]) => (
+            <span key={k} className={s.nanoShortcut}>
+              <span className={s.nanoKey}>{k}</span>
+              <span className={s.dim}> {l}</span>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -559,6 +767,18 @@ export const COMMANDS: Command[] = [
     cmd: 'clear',
     desc: 'clear the screen',
     run: (_, ctx) => { ctx.clear(); return null; },
+  },
+  {
+    cmd: 'vim',
+    match: /^vim(\s+(.+))?$/,
+    desc: 'open text editor (good luck getting out)',
+    run: (m, ctx) => { ctx.openEditor('vim', m?.[2]?.trim() || 'untitled.txt'); return null; },
+  },
+  {
+    cmd: 'nano',
+    match: /^nano(\s+(.+))?$/,
+    desc: 'open nano (the reasonable choice)',
+    run: (m, ctx) => { ctx.openEditor('nano', m?.[2]?.trim() || 'untitled.txt'); return null; },
   },
   {
     cmd: 'rm -rf .',

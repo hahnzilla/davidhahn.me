@@ -76,7 +76,7 @@ export function useBootSequence(
         await sleep(280);
 
         const resolved = resolveCommand(cmd);
-        const ctx: CommandContext = { setOpenProject: () => {}, clear: () => {}, cwd: '~', setCwd: () => {}, destroy: () => {} };
+        const ctx: CommandContext = { setOpenProject: () => {}, clear: () => {}, cwd: '~', setCwd: () => {}, destroy: () => {}, openEditor: () => {} };
         const output = resolved
           ? resolved.cmd.run(resolved.match, ctx)
           : NotFound({ cmd });

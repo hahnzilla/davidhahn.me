@@ -334,6 +334,104 @@
   color: var(--c-red);
 }
 
+/* ── Editor overlay (vim + nano shared) ── */
+.editorOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: var(--c-bg);
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.editorLine {
+  white-space: pre;
+  line-height: var(--term-lh);
+  min-height: 1.1em;
+}
+
+@keyframes editorBlink {
+  50% { opacity: 0; }
+}
+
+.editorCursor {
+  background: var(--c-fg);
+  color: var(--c-bg);
+  animation: editorBlink 1.05s steps(2, start) infinite;
+}
+
+/* ── Vim ── */
+.vimBody {
+  flex: 1;
+  overflow: hidden;
+  padding: 8px 28px 0;
+}
+
+.vimStatus {
+  flex-shrink: 0;
+  background: #0d0f12;
+  padding: 3px 28px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+  border-top: 1px solid #14171c;
+}
+
+.vimInsert {
+  color: var(--c-green);
+  font-weight: 600;
+}
+
+/* ── Nano ── */
+.nanoTopBar {
+  flex-shrink: 0;
+  background: #0d0f12;
+  border-bottom: 1px solid #14171c;
+  padding: 3px 28px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+}
+
+.nanoBody {
+  flex: 1;
+  overflow: hidden;
+  padding: 8px 28px 0;
+}
+
+.nanoShortcuts {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px 0;
+  padding: 4px 28px;
+  font-size: 0.82em;
+  background: #0d0f12;
+  border-top: 1px solid #14171c;
+}
+
+.nanoShortcut {
+  white-space: nowrap;
+}
+
+.nanoKey {
+  background: var(--c-fg);
+  color: var(--c-bg);
+  padding: 0 2px;
+  font-size: 0.95em;
+}
+
+.nanoPrompt {
+  flex-shrink: 0;
+  background: #0d0f12;
+  border-top: 1px solid #14171c;
+  padding: 4px 28px;
+  font-size: 0.9em;
+}
+
 /* ── shared color helpers ── */
 .fg { color: var(--c-fg); }
 .dim { color: var(--c-dim); }
