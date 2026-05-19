@@ -769,6 +769,21 @@ export const COMMANDS: Command[] = [
     run: (_, ctx) => { ctx.clear(); return null; },
   },
   {
+    cmd: 'sudo',
+    match: /^sudo(\s+.*)?$/,
+    desc: 'try your luck',
+    run: () => (
+      <span className={s.red}>
+        Sorry, david is not in the sudoers file. This incident will be reported.
+      </span>
+    ),
+  },
+  {
+    cmd: 'exit',
+    desc: 'there is no exit',
+    run: () => <span className={s.dim}>There is no exit.</span>,
+  },
+  {
     cmd: 'vim',
     match: /^vim(\s+(.+))?$/,
     desc: 'open text editor (good luck getting out)',
