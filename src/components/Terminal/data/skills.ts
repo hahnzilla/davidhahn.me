@@ -91,5 +91,11 @@ export const SKILLS_TREE: Record<string, Skill[]> = {
       url: 'https://claude.ai',
       blurb: 'AI pair programmer and thinking partner. It wrote some of the code on this very site.',
     },
+    {
+      name: 'pi',
+      years: 1,
+      url: 'https://pi.ai',
+      blurb: 'My default AI. I reach for it first because it doesn\'t just tell me what I want to hear.',
+    },
   ],
 };
