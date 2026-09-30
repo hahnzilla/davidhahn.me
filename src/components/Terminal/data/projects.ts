@@ -33,4 +33,26 @@ export const PROJECTS: Project[] = [
       ['4fa0192', 'initial commit'],
     ],
   },
+  {
+    slug: 'buschleague',
+    name: 'buschleague',
+    type: 'd',
+    status: 'live',
+    blurb: 'live scoreboard for a backyard tournament',
+    description:
+      "For two summers, a backyard tournament ran on paper scorecards and one guy's spreadsheet. Nobody knew who was winning until the end of the night, when the math got done and the results came out all at once. Busch League puts the scoreboard on a projector. Players scan a QR code, log their own cornhole throws and flip-cup times, and the standings reshuffle live on the garage door. The big screen rotates between game leaders, blowouts, records and a roast of whoever's in last place. Hosts can now run their own league with the same setup.",
+    stack: ['rails-8', 'react', 'postgresql', 'action-cable', 'fly.io', 'netlify'],
+    metrics: [
+      ['players on launch night', '13'],
+      ['scores logged, zero napkins', '91'],
+      ['big-board panel types', '19'],
+      ['lines of code', '~6.9k'],
+    ],
+    repo: 'buschleague.hahnzilla.com',
+    commits: [
+      ['2b93bfc', 'roast panels and ticker lines on the big board'],
+      ['257c1d4', 'landing page, self-serve hosting, sign-in rate limits'],
+      ['445200d', 'initial commit'],
+    ],
+  },
 ];
