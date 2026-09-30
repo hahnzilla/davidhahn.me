@@ -99,8 +99,10 @@ export function CatAbout() {
 
 // ── LsProjects ──
 export function LsProjects({ onOpen }: { onOpen?: (slug: string) => void }) {
+  // Size the name column to the longest name, plus the trailing slash
+  const nameWidth = `${Math.max(...PROJECTS.map((p) => p.name.length)) + 1}ch`;
   return (
-    <div>
+    <div style={{ '--ls-name-width': nameWidth } as React.CSSProperties}>
       <div className={s.lsHeader}>total {PROJECTS.length}</div>
       {PROJECTS.map((p) => (
         <button
